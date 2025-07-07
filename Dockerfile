@@ -34,6 +34,7 @@ ENV EXPORTER=${EXPORTER} \
     genmqpkg_incsdk=1 \
     genmqpkg_inctls=1 \
     DOWNLOAD_URL=${DOWNLOAD_URL}
+RUN yum install -y dpkg tar curl
 
 ENV GOVERSION=1.22.8
 USER 0
@@ -59,7 +60,7 @@ RUN mkdir -p /go/src /go/bin /go/pkg \
     && mkdir -p /opt/mqm \
     && mkdir -p /MQINST \
     && chmod a+rx /opt/mqm
-
+# This is only for the s390x bit, ideally wont run unless needed and should likely be done below in the IF
 # Download and extract the tar file
 RUN echo "Downloading from $DOWNLOAD_URL..." && \
     curl -LO "$DOWNLOAD_URL" || { echo "Download failed"; exit 1; } && \
