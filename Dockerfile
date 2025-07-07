@@ -102,9 +102,10 @@ RUN T="$TARGETOS/$TARGETARCH"; \
         && bin/genmqpkg.sh -b /opt/mqm;\
       elif [ "$T" = "linux/ppc64le" -o "$T" = "linux/s390x" ];\
       then \
-        cd /MQINST; \
-        c=`ls ibmmq-*$VRMF*.deb 2>/dev/null| wc -l`; if [ $c -lt 4 ]; then echo "MQ installation files do not exist in MQINST subdirectory";exit 1;fi; \
-        for f in ibmmq-runtime_$VRMF*.deb ibmmq-gskit_$VRMF*.deb ibmmq-client_$VRMF*.deb ibmmq-sdk_$VRMF*.deb; do dpkg -i $f;done; \
+       cd /MQINST; \
+        c=$(ls MQSeries*-$VRMF*.rpm 2>/dev/null | wc -l); \
+        if [ $c -lt 4 ]; then echo "MQ installation files do not exist in MQINST subdirectory"; exit 1; fi; \
+        for f in MQSeriesRuntime-$VRMF*.rpm MQSeriesGskit-$VRMF*.rpm MQSeriesClient-$VRMF*.rpm MQSeriesSDK-$VRMF*.rpm; do yum localinstall -y $f; done; \
       else   \
         echo "Unsupported platform $T";\
         exit 1;\
