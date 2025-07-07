@@ -41,6 +41,7 @@ USER 0
 RUN echo "Downloading from $DOWNLOAD_URL..." && \
     curl -LO "$DOWNLOAD_URL" || { echo "Download failed"; exit 1; } && \
     tar -xzvf $(basename "$DOWNLOAD_URL") -C MQINST || { echo "Extracting failed"; exit 1; }
+RUN ls -lh MQINST
 
 
 # The base UBI8 image does not (currently) contain the most
