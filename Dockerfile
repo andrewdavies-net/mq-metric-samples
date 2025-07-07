@@ -5,7 +5,7 @@
 # material from the build step into the runtime container.
 #
 # It can cope with both platforms where a Redistributable Client is available, and platforms
-# where it is not - copy the .deb install images for such platforms into the MQINST
+# where it is not - copy the .rpm install images for such platforms into the MQINST
 # subdirectory of this repository first.
 #
 # Also note the use of "COPY --chmod" which requires the DOCKER_BUILDKIT to be
@@ -39,8 +39,6 @@ ENV EXPORTER=${EXPORTER} \
 ENV GOVERSION=1.22.8
 USER 0
 
-RUN yum install -y dpkg tar curl
-
 # The base UBI8 image does not (currently) contain the most
 # recent Go compiler. Which tends to be required for the OTel
 # packages. So we have to explicitly download and install it.
@@ -70,14 +68,14 @@ RUN echo "Downloading from $DOWNLOAD_URL..." && \
     if [ ! -f "$tar_filename" ]; then echo "Tarball not found: $tar_filename"; exit 1; fi && \
     tar -xzvf "$tar_filename" || { echo "Extracting failed"; exit 1; }
 
-# Copy the deb files to /MQINST
+# Copy the rpm files to /MQINST
 RUN cd MQClient && \
-    cp *.deb /MQINST/ || { echo "Copying deb files failed"; exit 1; }
+    cp *.rpm /MQINST/ || { echo "Copying rpm files failed"; exit 1; }
 RUN ls -lh
 RUN ls -lh /MQINST
 # Install MQ client and SDK
 # For platforms with a Redistributable client, we can use curl to pull it in and unpack it.
-# For most other platforms, we assume that you have deb files available under the current directory
+# For most other platforms, we assume that you have rpm files available under the current directory
 # and we then copy them into the container image. Use dpkg to install from them; these have to be
 # done in the right order.
 #
@@ -88,9 +86,9 @@ RUN ls -lh /MQINST
 #
 # If additional Redistributable Client platforms appear, then this block can be altered, including the MQARCH setting.
 #
-# The copy of the README is so that at least one file always gets copied, even if you don't have the deb files locally.
+# The copy of the README is so that at least one file always gets copied, even if you don't have the rpm files locally.
 # Using a wildcard in the directory name also helps to ensure that this part of the build always succeeds.
-# COPY README.md MQINST*/*deb MQINST*/*tar.gz /MQINST
+# COPY README.md MQINST*/*rpm MQINST*/*tar.gz /MQINST
 
 RUN ls -lh /MQINST
 
@@ -121,8 +119,8 @@ RUN T="$TARGETOS/$TARGETARCH"; \
       elif [ "$T" = "linux/ppc64le" -o "$T" = "linux/s390x" ];\
       then \
         cd /MQINST; \
-        c=`ls ibmmq-*$VRMF*.deb 2>/dev/null| wc -l`; if [ $c -lt 4 ]; then echo "MQ installation files do not exist in MQINST subdirectory";exit 1;fi; \
-        for f in ibmmq-runtime_$VRMF*.deb ibmmq-gskit_$VRMF*.deb ibmmq-client_$VRMF*.deb ibmmq-sdk_$VRMF*.deb; do dpkg -i $f;done; \
+        c=`ls ibmmq-*$VRMF*.rpm 2>/dev/null| wc -l`; if [ $c -lt 4 ]; then echo "MQ installation files do not exist in MQINST subdirectory";exit 1;fi; \
+        for f in /MQINST/*.rpm; do yum localinstall -y $f; done; \
       else   \
         echo "Unsupported platform $T";\
         exit 1;\
