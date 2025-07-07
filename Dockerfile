@@ -38,12 +38,6 @@ ENV EXPORTER=${EXPORTER} \
 ENV GOVERSION=1.22.8
 USER 0
 
-RUN echo "Downloading from $DOWNLOAD_URL..." && \
-    curl -LO "$DOWNLOAD_URL" || { echo "Download failed"; exit 1; } && \
-    tar -xzvf $(basename "$DOWNLOAD_URL") -C MQINST || { echo "Extracting failed"; exit 1; }
-RUN ls -lh MQINST
-
-
 # The base UBI8 image does not (currently) contain the most
 # recent Go compiler. Which tends to be required for the OTel
 # packages. So we have to explicitly download and install it.
@@ -65,7 +59,11 @@ RUN mkdir -p /go/src /go/bin /go/pkg \
     && mkdir -p /opt/mqm \
     && mkdir -p /MQINST \
     && chmod a+rx /opt/mqm
-
+    
+RUN echo "Downloading from $DOWNLOAD_URL..." && \
+    curl -LO "$DOWNLOAD_URL" || { echo "Download failed"; exit 1; } && \
+    tar -xzvf $(basename "$DOWNLOAD_URL") -C /MQINST || { echo "Extracting failed"; exit 1; }
+RUN ls -lh /MQINST
 
 # Install MQ client and SDK
 # For platforms with a Redistributable client, we can use curl to pull it in and unpack it.
