@@ -61,12 +61,18 @@ RUN mkdir -p /go/src /go/bin /go/pkg \
     && chmod a+rx /opt/mqm
 
 RUN ls -lh 
+RUN cmd
+RUN ls ../ -lh 
 
 RUN echo "Downloading from $DOWNLOAD_URL..." && \
     curl -LO "$DOWNLOAD_URL" || { echo "Download failed"; exit 1; } && \
-    tar -xzvf $(basename "$DOWNLOAD_URL") -C MQINST || { echo "Extracting failed"; exit 1; }
-RUN ls -lh MQINST
+    tar -xzvf ./*.tar.gz || { echo "Extracting failed"; exit 1; }
 
+# Move into the extracted directory and copy .deb files to /MQINST
+RUN cd MQClient && \
+    cp *.deb /MQINST/ || { echo "Copying deb files failed"; exit 1; }
+RUN ls -lh
+RUN ls -lh /MQINST
 # Install MQ client and SDK
 # For platforms with a Redistributable client, we can use curl to pull it in and unpack it.
 # For most other platforms, we assume that you have deb files available under the current directory
@@ -82,7 +88,7 @@ RUN ls -lh MQINST
 #
 # The copy of the README is so that at least one file always gets copied, even if you don't have the deb files locally.
 # Using a wildcard in the directory name also helps to ensure that this part of the build always succeeds.
-COPY README.md MQINST*//*deb MQINST*/MQClient/*tar.gz /MQINST
+# COPY README.md MQINST*/*deb MQINST*/*tar.gz /MQINST
 
 RUN ls -lh /MQINST
 
