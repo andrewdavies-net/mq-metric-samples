@@ -39,7 +39,7 @@ ENV GOVERSION=1.22.8
 USER 0
 
 RUN echo "Downloading from $DOWNLOAD_URL..." && \
-    curl -L "$DOWNLOAD_URL" | tar -xz -C /MQINST
+    curl -L "$DOWNLOAD_URL" | tar -xz -C /MQINST || { echo "Download failed"; exit 1; }
 
 
 # The base UBI8 image does not (currently) contain the most
@@ -63,8 +63,6 @@ RUN mkdir -p /go/src /go/bin /go/pkg \
     && mkdir -p /opt/mqm \
     && mkdir -p /MQINST \
     && chmod a+rx /opt/mqm
-
-
 
 
 # Install MQ client and SDK
