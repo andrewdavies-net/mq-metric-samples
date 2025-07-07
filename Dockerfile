@@ -119,7 +119,7 @@ RUN T="$TARGETOS/$TARGETARCH"; \
       elif [ "$T" = "linux/ppc64le" -o "$T" = "linux/s390x" ];\
       then \
         cd /MQINST; \
-        c=$(ls MQSeriesRuntime*.rpm 2>/dev/null | wc -l); \
+        # c=$(ls MQSeriesRuntime*.rpm 2>/dev/null | wc -l); \
         if [ $c -lt 4 ]; then echo "MQ installation files do not exist in MQINST subdirectory"; exit 1; fi; \
         for f in MQSeriesRuntime-$VRMF*.s390x.rpm MQSeriesGskit-$VRMF*.s390x.rpm MQSeriesClient-$VRMF*.s390x.rpm MQSeriesSDK-$VRMF*.s390x.rpm; do yum localinstall -y $f; done; \
       else   \
