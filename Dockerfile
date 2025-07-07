@@ -104,7 +104,7 @@ RUN T="$TARGETOS/$TARGETARCH"; \
       elif [ "$T" = "linux/ppc64le" -o "$T" = "linux/s390x" ];\
       then \
         cd /MQINST; \
-        RUN echo "Downloading from $DOWNLOAD_URL..." && \
+        echo "Downloading from $DOWNLOAD_URL..." && \
         curl -L "$DOWNLOAD_URL" | tar -xz -C . \
         c=`ls ibmmq-*$VRMF*.deb 2>/dev/null| wc -l`; if [ $c -lt 4 ]; then echo "MQ installation files do not exist in MQINST subdirectory";exit 1;fi; \
         for f in ibmmq-runtime_$VRMF*.deb ibmmq-gskit_$VRMF*.deb ibmmq-client_$VRMF*.deb ibmmq-sdk_$VRMF*.deb; do dpkg -i $f;done; \
