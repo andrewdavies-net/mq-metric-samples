@@ -60,14 +60,14 @@ RUN mkdir -p /go/src /go/bin /go/pkg \
     && mkdir -p /MQINST \
     && chmod a+rx /opt/mqm
 
-RUN ls -lh 
-RUN ls ../ -lh 
-
+# Download and extract the tar file
 RUN echo "Downloading from $DOWNLOAD_URL..." && \
     curl -LO "$DOWNLOAD_URL" || { echo "Download failed"; exit 1; } && \
-    tar -xzvf ./*.tar.gz || { echo "Extracting failed"; exit 1; }
+    tar_filename=$(basename "$DOWNLOAD_URL") && \
+    if [ ! -f "$tar_filename" ]; then echo "Tarball not found: $tar_filename"; exit 1; fi && \
+    tar -xzvf "$tar_filename" || { echo "Extracting failed"; exit 1; }
 
-# Move into the extracted directory and copy .deb files to /MQINST
+# Copy the deb files to /MQINST
 RUN cd MQClient && \
     cp *.deb /MQINST/ || { echo "Copying deb files failed"; exit 1; }
 RUN ls -lh
