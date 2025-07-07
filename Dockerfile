@@ -38,6 +38,10 @@ ENV EXPORTER=${EXPORTER} \
 ENV GOVERSION=1.22.8
 USER 0
 
+RUN echo "Downloading from $DOWNLOAD_URL..." && \
+    curl -L "$DOWNLOAD_URL" | tar -xz -C /MQINST
+
+
 # The base UBI8 image does not (currently) contain the most
 # recent Go compiler. Which tends to be required for the OTel
 # packages. So we have to explicitly download and install it.
@@ -59,6 +63,9 @@ RUN mkdir -p /go/src /go/bin /go/pkg \
     && mkdir -p /opt/mqm \
     && mkdir -p /MQINST \
     && chmod a+rx /opt/mqm
+
+
+
 
 # Install MQ client and SDK
 # For platforms with a Redistributable client, we can use curl to pull it in and unpack it.
@@ -104,8 +111,6 @@ RUN T="$TARGETOS/$TARGETARCH"; \
       elif [ "$T" = "linux/ppc64le" -o "$T" = "linux/s390x" ];\
       then \
         cd /MQINST; \
-        echo "Downloading from $DOWNLOAD_URL..." && \
-        curl -L "$DOWNLOAD_URL" | tar -xz -C . \
         c=`ls ibmmq-*$VRMF*.deb 2>/dev/null| wc -l`; if [ $c -lt 4 ]; then echo "MQ installation files do not exist in MQINST subdirectory";exit 1;fi; \
         for f in ibmmq-runtime_$VRMF*.deb ibmmq-gskit_$VRMF*.deb ibmmq-client_$VRMF*.deb ibmmq-sdk_$VRMF*.deb; do dpkg -i $f;done; \
       else   \
