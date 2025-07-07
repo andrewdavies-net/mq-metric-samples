@@ -61,7 +61,6 @@ RUN mkdir -p /go/src /go/bin /go/pkg \
     && chmod a+rx /opt/mqm
 
 RUN ls -lh 
-RUN cmd
 RUN ls ../ -lh 
 
 RUN echo "Downloading from $DOWNLOAD_URL..." && \
