@@ -121,12 +121,11 @@ RUN T="$TARGETOS/$TARGETARCH"; \
         cd /MQINST; \
         # c=$(ls MQSeriesRuntime*.rpm 2>/dev/null | wc -l); \
         if [ $c -lt 4 ]; then echo "MQ installation files do not exist in MQINST subdirectory"; exit 1; fi; \
-        for f in MQSeriesRuntime-$VRMF.s390x.rpm MQSeriesGskit-$VRMF.s390x.rpm MQSeriesClient-$VRMF.s390x.rpm MQSeriesSDK-$VRMF.s390x.rpm; do yum localinstall -y $f; done; \
+        for f in MQSeriesRuntime-9.4.3-0.s390x.rpm MQSeriesGskit-9.4.3-0.s390x.rpm MQSeriesClient-9.4.3-0.s390x.rpm MQSeriesSDK-9.4.3-0.s390x.rpm; do yum localinstall -y $f; done; \
       else   \
         echo "Unsupported platform $T";\
         exit 1;\
       fi
-MQSeriesRuntime-9.4.3-0.s390x.rpm
 # Build the Go application
 WORKDIR /go/src/$ORG/$REPO
 COPY go.mod .
