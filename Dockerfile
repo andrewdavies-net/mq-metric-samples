@@ -34,10 +34,12 @@ ENV EXPORTER=${EXPORTER} \
     genmqpkg_incsdk=1 \
     genmqpkg_inctls=1 \
     DOWNLOAD_URL=${DOWNLOAD_URL}
-RUN yum install -y dpkg tar curl
+
 
 ENV GOVERSION=1.22.8
 USER 0
+
+RUN yum install -y dpkg tar curl
 
 # The base UBI8 image does not (currently) contain the most
 # recent Go compiler. Which tends to be required for the OTel
