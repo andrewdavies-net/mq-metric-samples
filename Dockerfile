@@ -22,7 +22,8 @@ ARG EXPORTER=mq_prometheus
 ARG BASE_IMAGE=registry.access.redhat.com/ubi8/go-toolset:1.21
 FROM $BASE_IMAGE AS builder
 
-ARG EXPORTER
+ARG EXPORTER \
+    DOWNLOAD_URL
 ENV EXPORTER=${EXPORTER} \
     ORG="github.com/ibm-messaging" \
     REPO="mq-metric-samples" \
