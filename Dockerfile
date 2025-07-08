@@ -23,7 +23,8 @@ ARG BASE_IMAGE=registry.access.redhat.com/ubi8/go-toolset:1.21
 FROM $BASE_IMAGE AS builder
 
 ARG EXPORTER \
-    DOWNLOAD_URL
+    DOWNLOAD_URL \
+    TRACING_DOWNLOAD_URL
 ENV EXPORTER=${EXPORTER} \
     ORG="github.com/ibm-messaging" \
     REPO="mq-metric-samples" \
@@ -34,7 +35,7 @@ ENV EXPORTER=${EXPORTER} \
     genmqpkg_incsdk=1 \
     genmqpkg_inctls=1 \
     DOWNLOAD_URL=${DOWNLOAD_URL}
-
+    TRACING_DOWNLOAD_URL=${TRACING_DOWNLOAD_URL}
 
 ENV GOVERSION=1.22.8
 USER 0
@@ -60,7 +61,9 @@ RUN mkdir -p /go/src /go/bin /go/pkg \
     && mkdir -p /opt/mqm \
     && mkdir -p /MQINST \
     && chmod a+rx /opt/mqm
-# This is only for the s390x bit, ideally wont run unless needed and should likely be done below in the IF
+
+# ----------- Metrics DOWNLOAD -------------    
+# This is only for the s390x bit, ideally wont run unless needed and should likely be done below in the below IF statement. I have some what broken this file for anything else so refactor needed.
 # Download and extract the tar file
 RUN echo "Downloading from $DOWNLOAD_URL..." && \
     curl -LO "$DOWNLOAD_URL" || { echo "Download failed"; exit 1; } && \
@@ -90,7 +93,16 @@ RUN ls -lh /MQINST
 # Using a wildcard in the directory name also helps to ensure that this part of the build always succeeds.
 # COPY README.md MQINST*/*rpm MQINST*/*tar.gz /MQINST
 
-RUN ls -lh /MQINST
+# ----------- TRACING DOWNLOAD -------------
+RUN echo "Downloading from $TRACING_DOWNLOAD_URL..." && \
+    curl -LO "$TRACING_DOWNLOAD_URL" || { echo "Download failed"; exit 1; } && \
+    tar_filename=$(basename "$TRACING_DOWNLOAD_URL") && \
+    if [ ! -f "$tar_filename" ]; then echo "Tarball not found: $tar_filename"; exit 1; fi && \
+    tar -xzvf "$tar_filename" || { echo "Extracting failed"; exit 1; }
+# What a lovely hardcode ;)
+RUN mkdir -p  /opt/mqm/myexits
+RUN cd 9.4.3.0-IBM-Instana-MQ-Tracing-LinuxS390X && \
+    cp tracelibrary.so mqtracingexit_r /opt/mqm/myexits || { echo "Copying tracing files failed"; exit 1; }
 
 # These are values always set by the "docker build" process
 ARG TARGETARCH TARGETOS
@@ -157,6 +169,8 @@ RUN mkdir -p /opt/bin \
     && chmod -R 777 /opt/bin \
     && mkdir -p /opt/mqm \
     && chmod 775 /opt/mqm \
+    && mkdir -p /opt/mqm/myexits \
+    && chmod 775 /opt/mqm/myexits \
     && mkdir -p /opt/config \
     && chmod a+rx /opt/config
 
@@ -174,5 +188,6 @@ ENV EXPORTER=${EXPORTER} \
 
 COPY --chmod=555 --from=builder /go/bin/${EXPORTER} /opt/bin/${EXPORTER}
 COPY             --from=builder /opt/mqm/ /opt/mqm/
+COPY             --from=builder  /opt/mqm/myexits /opt/mqm/myexits
 
 CMD ["sh", "-c", "/opt/bin/${EXPORTER}"]
