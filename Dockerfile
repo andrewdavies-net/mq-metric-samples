@@ -102,7 +102,7 @@ RUN echo "Downloading from $TRACING_DOWNLOAD_URL..." && \
 # What a lovely hardcode ;)
 RUN ls -lh
 RUN mkdir -p  /opt/mqm/myexits
-COPY tracelibrary.so mqtracingexit_r /opt/mqm/myexits
+RUN cp tracelibrary.so mqtracingexit_r /opt/mqm/myexits
 RUN ls -lh /opt/mqm/myexits
 
 # These are values always set by the "docker build" process
