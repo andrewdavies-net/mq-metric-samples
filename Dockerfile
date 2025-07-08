@@ -34,7 +34,7 @@ ENV EXPORTER=${EXPORTER} \
     genmqpkg_incnls=1 \
     genmqpkg_incsdk=1 \
     genmqpkg_inctls=1 \
-    DOWNLOAD_URL=${DOWNLOAD_URL}
+    DOWNLOAD_URL=${DOWNLOAD_URL} \
     TRACING_DOWNLOAD_URL=${TRACING_DOWNLOAD_URL}
 
 ENV GOVERSION=1.22.8
