@@ -100,9 +100,10 @@ RUN echo "Downloading from $TRACING_DOWNLOAD_URL..." && \
     if [ ! -f "$tar_filename" ]; then echo "Tarball not found: $tar_filename"; exit 1; fi && \
     tar -xzvf "$tar_filename" || { echo "Extracting failed"; exit 1; }
 # What a lovely hardcode ;)
+RUN ls -lh
 RUN mkdir -p  /opt/mqm/myexits
-RUN cd 9.4.3.0-IBM-Instana-MQ-Tracing-LinuxS390X && \
-    cp tracelibrary.so mqtracingexit_r /opt/mqm/myexits || { echo "Copying tracing files failed"; exit 1; }
+COPY tracelibrary.so mqtracingexit_r /opt/mqm/myexits
+RUN ls -lh /opt/mqm/myexits
 
 # These are values always set by the "docker build" process
 ARG TARGETARCH TARGETOS
